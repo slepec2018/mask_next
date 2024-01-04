@@ -1,11 +1,13 @@
+import Sidebar from "../components/Sidebar";
+
 export default function Home() {
   return (
     <div>
-      <h1
-        className='bg-red-500'
+      <main
+        className="flex min-h-screen max-w-7xl mx-auto"
       >
-        New Project
-      </h1>
+        <Sidebar />
+      </main>
     </div>
   )
 }
