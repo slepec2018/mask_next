@@ -1,6 +1,7 @@
 import Sidebar from "../components/Sidebar";
 import Feed from "../components/Feed";
 import Widgets from "@/components/Widgets";
+import CommentModal from "@/components/CommentModal";
 
 export default function Home({ newsResults, randomUsersResults }) {
   return (
@@ -14,6 +15,7 @@ export default function Home({ newsResults, randomUsersResults }) {
           newsResults={newsResults.articles}
           randomUsersResults={randomUsersResults.results}
         />
+        <CommentModal />
       </main>
     </div>
   )
