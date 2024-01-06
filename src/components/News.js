@@ -7,7 +7,7 @@ export default function News({article}) {
       target="_blanc"
     >
       <div
-        className='flex items-center justify-between px-4 py-2 space-x-1 hover:bg-gray-200 transition duration-200'
+        className='flex items-center justify-between px-4 py-2 space-x-1 hover:bg-gray-200 transition duration-500 ease-out'
       >
         <div
           className='space-y-0.5'
