@@ -1,29 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Input from './Input';
 import Post from './Post';
 import { SparklesIcon } from '@heroicons/react/outline';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 export default function Feed() {
-  const posts = [
-    {
-      id: "1",
-      name: "Leo",
-      username: "leocode",
-      userImg: "https://prod-images.tcm.com/Master-Profile-Images/LeonardoDiCaprio.jpg",
-      img: "https://images.unsplash.com/photo-1703433690150-2ac5b9edd095?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      text: "Nice view!",
-      timestamp: "2 hours ago"
-    },
-    {
-      id: "2",
-      name: "Leo",
-      username: "leocode",
-      userImg: "https://prod-images.tcm.com/Master-Profile-Images/LeonardoDiCaprio.jpg",
-      img: "https://images.unsplash.com/photo-1695264424367-a61e7988200b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      text: "wow!",
-      timestamp: "2 days ago"
-    },
-  ];
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    return onSnapshot(query(collection(db, "posts"), orderBy("timestamp", 'desc')), (snapshot) => {setPosts(snapshot.docs)});
+  }, []);
 
   return (
     <div
