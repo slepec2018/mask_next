@@ -4,17 +4,23 @@ import Sidebar from '@/components/Sidebar';
 import Widgets from '@/components/Widgets';
 import CommentModal from '@/components/CommentModal';
 import Post from '@/components/Post';
+import Comment from '@/components/Comment';
 import { ArrowLeftIcon } from '@heroicons/react/outline';
 import { db } from '../../../firebase';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, onSnapshot, orderBy, query } from 'firebase/firestore';
 
 export default function PostPage({ newsResults, randomUsersResults }) {
   const router = useRouter();
   const { id } = router.query;
   const [post, setPost] = useState();
+  const [comments, setComments] = useState([]);
 
   useEffect(() => {
     onSnapshot(doc(db, "posts", id), (snapshot) => setPost(snapshot));
+  }, [db, id]);
+
+  useEffect(() => {
+    onSnapshot(query(collection(db, "posts", id, "comments"), orderBy("timestamp", "desc")), (snapshot) => setComments(snapshot.docs));
   }, [db, id]);
 
   return (
@@ -47,6 +53,19 @@ export default function PostPage({ newsResults, randomUsersResults }) {
             id={id}
             post={post}
           />
+          {comments.length > 0 && (
+            <div
+              className=''
+            >
+              {comments.map((comment) => (
+                <Comment
+                  key={comment.id}
+                  id={comment.id}
+                  comment={comment.data()}
+                />
+              ))}
+            </div>
+          )}
         </div>
         <Widgets
           newsResults={newsResults.articles}
