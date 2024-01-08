@@ -1,12 +1,41 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Image from 'next/image';
 import SidebarMenuItem from './SidebarMenuItem';
 import { HomeIcon } from '@heroicons/react/solid';
 import { BellIcon, BookmarkIcon, ClipboardIcon, DotsCircleHorizontalIcon, DotsHorizontalIcon, HashtagIcon, InboxIcon, UserIcon } from '@heroicons/react/outline';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { useRecoilState } from 'recoil';
+import { userState } from '../../atom/userAtom';
+import { useRouter } from 'next/router';
 
 export default function Sidebar() {
-  const { data: session } = useSession();
+  const [currentUser, setCurrentUser] = useRecoilState(userState);
+  const auth = getAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => { 
+      if (user) {
+        const fetchUser = async () => {
+          const docRef = doc(db, "users", auth.currentUser.providerData[0].uid);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            setCurrentUser(docSnap.data());
+          }
+        }
+        
+        fetchUser();
+      }
+    });
+  }, []);
+
+  function onSignOut() {
+    signOut(auth);
+    setCurrentUser(null);
+  }
 
   return (
     <div
@@ -34,7 +63,7 @@ export default function Sidebar() {
           text="Explore"
           Icon={HashtagIcon}
         />
-        {session && (
+        {currentUser && (
           <>
             <SidebarMenuItem
               text="Notifications"
@@ -63,7 +92,7 @@ export default function Sidebar() {
           </>
         )}
       </div>
-      {session ? (
+      {currentUser ? (
         <>
           <button
             className="bg-blue-400 text-white rounded-full w-56 h-12 font-bold shadow-md hover:brightness-95 text-lg hidden xl:inline"
@@ -74,8 +103,8 @@ export default function Sidebar() {
             className="hoverEffect text-gray-700 flex items-center justify-center xl:justify-start mt-auto"
           >
             <img
-              onClick={signOut}
-              src={session.user.image}
+              onClick={onSignOut}
+              src={currentUser?.userImg}
               alt='user-img'
               className='h-10 w-10 rounded-full xl:mr-2'
             />
@@ -85,12 +114,12 @@ export default function Sidebar() {
               <h4
                 className='font-bold'
               >
-                {session.user.name}
+                {currentUser?.name}
               </h4>
               <p
                 className='text-gray-500'
               >
-                @{session.user.username}
+                @{currentUser?.username}
               </p>
             </div>
             <DotsHorizontalIcon
@@ -100,13 +129,12 @@ export default function Sidebar() {
         </>
       ) : (
           <button
-            onClick={signIn}
+            onClick={() => router.push('/auth/signin')}
             className="bg-blue-400 text-white rounded-full w-36 h-12 font-bold shadow-md hover:brightness-95 text-lg hidden xl:inline"
           >
           Sign in
         </button>
       )}
-      
     </div>
   )
 }

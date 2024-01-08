@@ -1,17 +1,20 @@
 import { EmojiHappyIcon, PhotographIcon } from '@heroicons/react/outline';
 import React, {useState, useRef} from 'react';
-import { useSession, signOut } from 'next-auth/react';
 import { addDoc, collection, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
 import { db, storage } from '../../firebase';
 import { getDownloadURL, uploadString, ref } from 'firebase/storage';
 import { XIcon } from '@heroicons/react/solid';
+import { useRecoilState } from 'recoil';
+import { userState } from '../../atom/userAtom';
+import { signOut, getAuth } from 'firebase/auth';
 
 export default function Input() {
-  const { data: session } = useSession();
+  const [currentUser, setCurrentUser] = useRecoilState(userState);
   const [input, setInput] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const filePickerRef = useRef(null);
+  const auth = getAuth();
 
   const sendPost = async () => {
     if (loading) {
@@ -21,12 +24,12 @@ export default function Input() {
     setLoading(true);
 
     const docRef = await addDoc(collection(db, "posts"), {
-      id: session.user.id,
+      id: currentUser.uid,
       text: input,
-      userImg: session.user.image,
+      userImg: currentUser.userImg,
       timestamp: serverTimestamp(),
-      name: session.user.name,
-      username: session.user.username,
+      name: currentUser.name,
+      username: currentUser.username,
     });
 
     const imageRef = ref(storage, `posts/${docRef.id}/image`);
@@ -36,7 +39,7 @@ export default function Input() {
         .then(async () => {
           const downloadURL = await getDownloadURL(imageRef);
 
-          await updateDoc(doc(db, "post", docRef.id), {
+          await updateDoc(doc(db, "posts", docRef.id), {
             image: downloadURL,
           });
         });
@@ -51,7 +54,7 @@ export default function Input() {
     const reader = new FileReader();
 
     if (e.target.files[0]) {
-      reader.readAsDataURL();
+      reader.readAsDataURL(e.target.files[0]);
     }
 
     reader.onload = (readerEvent) => {
@@ -59,15 +62,20 @@ export default function Input() {
     }
   }
 
+  function onSignOut() {
+    signOut(auth);
+    setCurrentUser(null);
+  }
+
   return (
     <>
-    {session && (
+    {currentUser && (
       <div
         className='flex border-b border-gray-200 p-3 space-x-3'
       >
         <img
-          onClick={signOut}
-          src={session.user.image}
+          onClick={onSignOut}
+          src={currentUser?.userImg}
           alt='user-img'
           className='h-11 w-11 rounded-full cursor-pointer hover:brightness-95'
         />
