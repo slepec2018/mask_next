@@ -96,7 +96,7 @@ export default function Post({ post, id }) {
               <Moment
                 fromNow
               >
-                {post?.data()?.timestamp.toDate()}
+                {post?.data()?.timestamp?.toDate()}
               </Moment>
             </span>
           </div>
@@ -106,10 +106,12 @@ export default function Post({ post, id }) {
         </div>
         <p
           className='text-gray-800 text-[15px] sm:text-[16px] mb-2'
+          onClick={() => router.push(`/posts/${id}`)}
         >
           {post?.data()?.text}
         </p>
         <img
+          onClick={() => router.push(`/posts/${id}`)}
           src={post?.data()?.image}
           alt="nice img"
           className='rounded-2xl mr-2'
