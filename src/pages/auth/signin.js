@@ -17,6 +17,7 @@ export default function signin({providers}) {
       >
         {Object.values(providers).map((provider) => (
           <div
+            key={provider.name}
             className='flex flex-col items-center'
           >
             <img

@@ -34,7 +34,7 @@ export default function Widgets({ newsResults, randomUsersResults }) {
         <h4
           className='font-bold text-xl px-4'
         >
-          What's happening
+          Whats happening
         </h4>
         <AnimatePresence>
           {newsResults.slice(0, articleNum).map((article) => (

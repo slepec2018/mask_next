@@ -3,6 +3,7 @@ import React from 'react'
 export default function News({article}) {
   return (
     <a
+      rel='noreferrer'
       href={article.url}
       target="_blanc"
     >
